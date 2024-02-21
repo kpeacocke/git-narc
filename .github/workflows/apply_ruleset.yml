@@ -21,7 +21,7 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: Bearer $GITHUB_TOKEN" \
             "https://api.github.com/repos/${{ github.repository }}/rulesets")
-          RULESET_ID=$(echo "$RULESETS" | jq -r '.[] | select(.name=="'$RULESET_NAME'") | .id')
+          RULESET_ID=$(echo "$RULESETS" | jq -r ".[] | select(.name==\"$RULESET_NAME\") | .id")
           if [ -z "$RULESET_ID" ]; then
             echo "Ruleset does not exist, creating..."
             RESPONSE=$(curl -s -X POST \
