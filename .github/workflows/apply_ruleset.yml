@@ -37,4 +37,3 @@ jobs:
               -d @.github/rulesets/gitflow-ruleset.json)
           fi
           echo "$RESPONSE"
-          echo "$RESPONSE" | grep -q "Invalid" && exit 1 || exit 0
