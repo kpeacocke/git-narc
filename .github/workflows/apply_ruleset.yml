@@ -16,25 +16,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_FLOW_PAT }}
         run: |
-          RULESET_NAME="GitFlow Enforcement"
-          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X GET \
+          EXIST=$(curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/rulesets")
+          echo "$EXIST"
+          RESPONSE=$(curl -s -X POST \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: Bearer $GITHUB_TOKEN" \
-            "https://api.github.com/repos/${{ github.repository }}/rulesets/$RULESET_NAME")
-          if [ "$STATUS_CODE" -eq 404 ]; then
-            echo "Ruleset does not exist, creating..."
-            RESPONSE=$(curl -s -X POST \
-              -H "Accept: application/vnd.github.v3+json" \
-              -H "Authorization: Bearer $GITHUB_TOKEN" \
-              "https://api.github.com/repos/${{ github.repository }}/rulesets" \
-              -d @.github/rulesets/gitflow-ruleset.json)
-          else
-            echo "Ruleset exists, updating..."
-            RESPONSE=$(curl -s -X PATCH \
-              -H "Accept: application/vnd.github.v3+json" \
-              -H "Authorization: Bearer $GITHUB_TOKEN" \
-              "https://api.github.com/repos/${{ github.repository }}/rulesets/$RULESET_NAME" \
-              -d @.github/rulesets/gitflow-ruleset.json)
-          fi
+            "https://api.github.com/repos/${{ github.repository }}/rulesets" \
+            -d @.github/rulesets/gitflow-ruleset.json)
           echo "$RESPONSE"
-          if echo "$RESPONSE" | grep -q "Invalid"; then exit 1; fi
+          echo "$RESPONSE" | grep "Invalid" && exit 1 || exit 0
