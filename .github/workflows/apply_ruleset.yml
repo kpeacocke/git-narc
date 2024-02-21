@@ -22,12 +22,14 @@ jobs:
             -H "Authorization: Bearer $GITHUB_TOKEN" \
             "https://api.github.com/repos/${{ github.repository }}/rulesets/$RULESET_NAME")
           if echo "$RULESET" | grep -q "Not Found"; then
+            echo "Ruleset does not exist, creating..."
             RESPONSE=$(curl -s -X POST \
               -H "Accept: application/vnd.github.v3+json" \
               -H "Authorization: Bearer $GITHUB_TOKEN" \
               "https://api.github.com/repos/${{ github.repository }}/rulesets" \
               -d @.github/rulesets/gitflow-ruleset.json)
           else
+            echo "Ruleset exists, updating..."
             RESPONSE=$(curl -s -X PATCH \
               -H "Accept: application/vnd.github.v3+json" \
               -H "Authorization: Bearer $GITHUB_TOKEN" \
