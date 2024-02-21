@@ -36,6 +36,7 @@ jobs:
               -H "Authorization: Bearer $GITHUB_TOKEN" \
               "https://api.github.com/repos/${{ github.repository }}/rulesets/$RULESET_ID" \
               -d @.github/rulesets/gitflow-ruleset.json)
+            echo "$RESPONSE" | grep -q "Not Found" && exit 1 || exit 0
           fi
           echo "$RESPONSE"
           echo "$RESPONSE" | grep -q "Invalid" && exit 1 || exit 0
