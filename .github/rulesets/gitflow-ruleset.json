@@ -15,7 +15,7 @@
       "parameters": {}
     },
     {
-      "type": "required_pull_request_reviews",
+      "type": "pull_request",
       "parameters": {
         "dismiss_stale_reviews_on_push": true,
         "require_code_owner_reviews": false,
