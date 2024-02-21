@@ -16,7 +16,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_FLOW_PAT }}
         run: |
-          RULESET_NAME="GitFlow Enforcement Updated"
+          RULESET_NAME="GitFlow Enforcement"
           RULESET=$(curl -s -X GET \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: Bearer $GITHUB_TOKEN" \
