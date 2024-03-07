@@ -21,7 +21,9 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: Bearer $GITHUB_TOKEN" \
             "https://api.github.com/repos/${{ github.repository }}/rulesets")
+          echo "RULESETS: $RULESETS"
           RULESET_ID=$(echo "$RULESETS" | jq -r ".[] | select(.name==\"$RULESET_NAME\") | .id")
+          echo "RULESET_ID: $RULESET_ID"
           if [ -z "$RULESET_ID" ]; then
             echo "Ruleset does not exist, creating..."
             RESPONSE=$(curl -s -X POST \
@@ -36,13 +38,7 @@ jobs:
               -H "Authorization: Bearer $GITHUB_TOKEN" \
               "https://api.github.com/repos/${{ github.repository }}/rulesets/$RULESET_ID" \
               -d @.github/rulesets/gitflow-ruleset.json)
-            if echo "$RESPONSE" | grep -q "Not Found"; then
-              echo "Error: Failed to update ruleset. Response: $RESPONSE"
-              exit 1
-            fi
+            echo "$RESPONSE" | grep -q "Not Found" && exit 1 || exit 0
           fi
-          echo "$RESPONSE"
-          if echo "$RESPONSE" | grep -q "Invalid"; then
-            echo "Error: Invalid response. Response: $RESPONSE"
-            exit 1
-          fi
+          echo "RESPONSE: $RESPONSE"
+          echo "$RESPONSE" | grep -q "Invalid" && exit 1 || exit 0
