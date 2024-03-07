@@ -33,7 +33,7 @@ jobs:
               -d @.github/rulesets/gitflow-ruleset.json)
           else
             echo "Ruleset exists, updating..."
-            RESPONSE=$(curl -s -X PATCH \
+            RESPONSE=$(curl -s -X PUT \
               -H "Accept: application/vnd.github.v3+json" \
               -H "Authorization: Bearer $GITHUB_TOKEN" \
               "https://api.github.com/repos/${{ github.repository }}/rulesets/$RULESET_ID" \
