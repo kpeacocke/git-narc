@@ -1,36 +1,42 @@
-name: Check Commit Messages for Issue References
+name: Setup Semantic Release and Update Sonar Version
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
-  check-commits:
+  setup:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uuses: actions/setup-node@v3
+        uses: actions/checkout@v2
         with:
-          node-version: '20',
-          fetch-depth: 2  # Adjusts commit history depth based on the trigger event
+          fetch-depth: 2
 
-      - name: Check commits for issue references
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Create package.json if not exist
         run: |
-          commits=$(git log --format=%B -n 2 | grep -oP '(?<=#)\d+')
-          echo "Found issues in commits: $commits"
-          for issue in $commits; do
-            # Skip checking for automation commits
-            if [[ "$GITHUB_ACTOR" == "github-actions[bot]" ]]; then
-              echo "Skipping check for automation commit"
-              continue
-            fi
+          if [ ! -f package.json ]; then
+            npm init -y
+          fi
 
-            echo "Checking issue #$issue"
-            response=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/issues/$issue)
-            state=$(echo $response | jq -r .state)
-            assignee=$(echo $response | jq -r .assignee.login)
-            echo "Issue #$issue - State: $state, Assignee: $assignee"
+      - name: Install semantic-release
+        run: |
+          if ! grep -q "semantic-release" package.json; then
+            npm install semantic-release --save-dev
+          fi
 
-            if [ "$state" != "open" ] || [ "$assignee" != "expected_assignee" ]; then
-              echo "Issue #$issue does not meet the criteria"
-              exit 1
-            fi
-          done
+      - name: Setup semantic-release configuration
+        run: |
+          if [ ! -f .releaserc.json ]; then
+            echo '{ "branches": ["main", {"name": "develop", "prerelease": true}, {"name": "release/*", "prerelease": true}, {"name": "hotfix/*", "prerelease": true}], "plugins": ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", {"@semantic-release/github": {"assets": ["dist/**", "build/**"]}}] }' > .releaserc.json
+          fi
+
+      - name: Update sonar-project.properties with new version
+        run: |
+          VERSION=$(npx semantic-release --dry-run | grep 'The next release version is' | sed 's/.*is //')
+          if [ ! -z "$VERSION" ]; then
+            sed -i "s/sonar.projectVersion=.*/sonar.projectVersion=$VERSION/" sonar-project.properties
+          fi
