@@ -32,8 +32,9 @@ jobs:
             state=$(echo $response | jq -r .state)
             assignee=$(echo $response | jq -r .assignee.login)
             echo "Issue #$issue - State: $state, Assignee: $assignee"
+            echo "$expected_assignee"
 
-            if [ "$state" != "open" ]; then
+            if [ "$state" != "open" ] || [ "$assignee" != "expected_assignee" ]; then
               echo "Issue #$issue does not meet the criteria"
               exit 1
             fi
