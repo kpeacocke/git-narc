@@ -1,0 +1,33 @@
+name: Setup Semantic Release
+
+on: [push]
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Create package.json if not exist
+        run: |
+          if [ ! -f package.json ]; then
+            npm init -y
+          fi
+
+      - name: Install semantic-release
+        run: |
+          if ! grep -q "semantic-release" package.json; then
+            npm install semantic-release --save-dev
+          fi
+
+      - name: Setup semantic-release configuration
+        run: |
+          if [ ! -f .releaserc.json ]; then
+            echo '{ "branches": ["main", {"name": "develop", "prerelease": true}, {"name": "release/*", "prerelease": true}, {"name": "hotfix/*", "prerelease": true}], "plugins": ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", {"@semantic-release/github": {"assets": ["dist/**", "build/**"]}}] }' > .releaserc.json
+          fi
