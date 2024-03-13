@@ -6,14 +6,19 @@ on:
       - develop
       - feature
       - feature/**
+      - release
       - release/**
+      - hotfix
       - hotfix/**
   pull_request:
     branches:
       - main
       - develop
+      - feature
       - feature/**
+      - release
       - release/**
+      - hotfix
       - hotfix/**
 
 jobs:

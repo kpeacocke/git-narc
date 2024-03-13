@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "kpeacocke",
+        "projectKey": "kpeacocke_git-narc"
+    }
+}
