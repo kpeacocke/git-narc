@@ -1,0 +1,29 @@
+name: SonarCloud Scan
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - feature/**
+      - release/**
+      - hotfix/**
+  pull_request:
+    branches:
+      - main
+      - develop
+      - feature/**
+      - release/**
+      - hotfix/**
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
