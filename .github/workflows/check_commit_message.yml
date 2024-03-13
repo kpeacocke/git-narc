@@ -33,7 +33,7 @@ jobs:
             assignee=$(echo $response | jq -r .assignee.login)
             echo "Issue #$issue - State: $state, Assignee: $assignee"
 
-            if [ "$state" != "open" ] || [ "$assignee" != "expected_assignee" ]; then
+            if [ "$state" != "open" ]; then
               echo "Issue #$issue does not meet the criteria"
               exit 1
             fi
