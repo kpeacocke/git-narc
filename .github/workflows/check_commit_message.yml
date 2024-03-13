@@ -7,8 +7,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uuses: actions/setup-node@v3
         with:
+          node-version: '20',
           fetch-depth: 2  # Adjusts commit history depth based on the trigger event
 
       - name: Check commits for issue references
