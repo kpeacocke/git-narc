@@ -1,8 +1,14 @@
 {
-  "name": "GitFlow Enforcement",
+  "name": "Pull Request Enforcement",
   "target": "branch",
   "enforcement": "active",
-  "bypass_actors": [],
+  "bypass_actors": [
+    {
+      "actor_id": 1,
+      "actor_type": "OrganizationAdmin",
+      "bypass_mode": "pull_request"
+    }
+  ],
   "conditions": {
     "ref_name": {
       "include": [
@@ -16,18 +22,6 @@
     }
   },
   "rules": [
-    {
-      "type": "required_linear_history",
-      "parameters": {}
-    },
-    {
-      "type": "non_fast_forward",
-      "parameters": {}
-    },
-    {
-      "type": "required_signatures",
-      "parameters": {}
-    },
     {
       "type": "pull_request",
       "parameters": {
