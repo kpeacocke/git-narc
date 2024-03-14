@@ -2,7 +2,7 @@
   "name": "GitFlow Enforcement",
   "target": "branch",
   "enforcement": "active",
-  "bypass_actors": [],  // This array will be dynamically updated to include the repository owner
+  "bypass_actors": [],
   "conditions": {
     "ref_name": {
       "include": ["refs/heads/main", "refs/heads/develop"],
@@ -10,18 +10,6 @@
     }
   },
   "rules": [
-    {
-      "type": "required_linear_history",
-      "parameters": {}
-    },
-    {
-      "type": "non_fast_forward",
-      "parameters": {}
-    },
-    {
-      "type": "required_signatures",
-      "parameters": {}
-    },
     {
       "type": "pull_request",
       "parameters": {

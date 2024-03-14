@@ -12,11 +12,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4.1.1
 
-      - name: Apply ruleset
+      - name: Get repository owner
+        id: repo-owner
+        run: |
+          REPO_INFO=$(curl -s -H "Authorization: Bearer ${{ secrets.GIT_FLOW_PAT }}" \
+            https://api.github.com/repos/${{ github.repository }})
+          OWNER=$(echo "$REPO_INFO" | jq -r .owner.login)
+          echo "::set-output name=owner::$OWNER"
+
+      - name: Modify ruleset to include bypass actor
+        run: |
+          OWNER=${{ steps.repo-owner.outputs.owner }}
+          jq --arg owner "$OWNER" '.bypass_actors += [$owner]' .github/rulesets/pull-request.json > tmp.json && mv tmp.json .github/rulesets/pull-request.json
+
+      - name: Apply default ruleset
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_FLOW_PAT }}
         run: |
-          RULESET_NAME="GitFlow Enforcement"
+          RULESET_NAME="Default Enforcement"
           RULESETS=$(curl -s -X GET \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: Bearer $GITHUB_TOKEN" \
@@ -30,14 +43,45 @@ jobs:
               -H "Accept: application/vnd.github.v3+json" \
               -H "Authorization: Bearer $GITHUB_TOKEN" \
               "https://api.github.com/repos/${{ github.repository }}/rulesets" \
-              -d @.github/rulesets/gitflow-ruleset.json)
+              -d @.github/rulesets/default_rules.json)
           else
             echo "Ruleset exists, updating..."
             RESPONSE=$(curl -s -X PUT \
               -H "Accept: application/vnd.github.v3+json" \
               -H "Authorization: Bearer $GITHUB_TOKEN" \
               "https://api.github.com/repos/${{ github.repository }}/rulesets/$RULESET_ID" \
-              -d @.github/rulesets/gitflow-ruleset.json)
+              -d @.github/rulesets/default_rules.json)
+            echo "$RESPONSE" | grep -q "Not Found" && exit 1 || exit 0
+          fi
+          echo "RESPONSE: $RESPONSE"
+          echo "$RESPONSE" | grep -q "Invalid" && exit 1 || exit 0
+
+      - name: Apply default ruleset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIT_FLOW_PAT }}
+        run: |
+          RULESET_NAME="Pull-request Enforcement"
+          RULESETS=$(curl -s -X GET \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}/rulesets")
+          echo "RULESETS: $RULESETS"
+          RULESET_ID=$(echo "$RULESETS" | jq -r ".[] | select(.name==\"$RULESET_NAME\") | .id")
+          echo "RULESET_ID: $RULESET_ID"
+          if [ -z "$RULESET_ID" ]; then
+            echo "Ruleset does not exist, creating..."
+            RESPONSE=$(curl -s -X POST \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              "https://api.github.com/repos/${{ github.repository }}/rulesets" \
+              -d @.github/rulesets/pull-request.json)
+          else
+            echo "Ruleset exists, updating..."
+            RESPONSE=$(curl -s -X PUT \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              "https://api.github.com/repos/${{ github.repository }}/rulesets/$RULESET_ID" \
+              -d @.github/rulesets/pull-request.json)
             echo "$RESPONSE" | grep -q "Not Found" && exit 1 || exit 0
           fi
           echo "RESPONSE: $RESPONSE"
