@@ -56,11 +56,11 @@ jobs:
           echo "RESPONSE: $RESPONSE"
           echo "$RESPONSE" | grep -q "Invalid" && exit 1 || exit 0
 
-      - name: Apply default ruleset
+      - name: Apply pull request ruleset
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_FLOW_PAT }}
         run: |
-          RULESET_NAME="Pull-request Enforcement"
+          RULESET_NAME="Pull Request Enforcement"
           RULESETS=$(curl -s -X GET \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: Bearer $GITHUB_TOKEN" \
