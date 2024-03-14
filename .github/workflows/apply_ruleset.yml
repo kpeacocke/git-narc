@@ -12,19 +12,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4.1.1
 
-      - name: Get repository owner
-        id: repo-owner
-        run: |
-          REPO_INFO=$(curl -s -H "Authorization: Bearer ${{ secrets.GIT_FLOW_PAT }}" \
-            https://api.github.com/repos/${{ github.repository }})
-          OWNER=$(echo "$REPO_INFO" | jq -r .owner.login)
-          echo "::set-output name=owner::$OWNER"
-
-      - name: Modify ruleset to include bypass actor
-        run: |
-          OWNER=${{ steps.repo-owner.outputs.owner }}
-          jq --arg owner "$OWNER" '.bypass_actors += [$owner]' .github/rulesets/pull-request.json > tmp.json && mv tmp.json .github/rulesets/pull-request.json
-
       - name: Apply default ruleset
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_FLOW_PAT }}
