@@ -1,5 +1,5 @@
 {
-  "name": "GitFlow Enforcement",
+  "name": "Default Rule Enforcement",
   "target": "branch",
   "enforcement": "active",
   "conditions": {

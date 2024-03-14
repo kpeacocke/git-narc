@@ -1,5 +1,5 @@
 {
-  "name": "GitFlow Enforcement",
+  "name": "Pull Request Enforcement",
   "target": "branch",
   "enforcement": "active",
   "bypass_actors": [],
