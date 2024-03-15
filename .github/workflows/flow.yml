@@ -1,0 +1,65 @@
+name: Comprehensive Branch Validation
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+    types: [opened, synchronize, reopened]
+  create:
+
+jobs:
+  develop-branch-merge-validation:
+    runs-on: ubuntu-latest
+    if: github.base_ref == 'develop'
+    steps:
+      - name: Check source branch for develop
+        run: |
+          if [[ ! "${{ github.head_ref }}" =~ ^(release/|hotfix/) ]]; then
+            echo "Only release or hotfix branches can merge into develop."
+            exit 1
+          fi
+
+  enforce-branch-naming:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'create'
+    steps:
+      - name: Check branch name
+        run: |
+          if [[ ! "$GITHUB_REF" =~ refs/heads/(feature|hotfix|release)/.+ ]]; then
+            echo "Branch name does not follow the GitFlow naming convention (feature/, hotfix/, release/)."
+            exit 1
+          fi
+
+  feature-branch-validation:
+    runs-on: ubuntu-latest
+    if: startsWith(github.head_ref, 'feature/') && github.base_ref == 'develop'
+    steps:
+      - name: Check target branch for feature
+        run: |
+          if [ "${{ github.base_ref }}" != "develop" ]; then
+            echo "Feature branches must target the develop branch."
+            exit 1
+          fi
+
+  hotfix-branch-validation:
+    runs-on: ubuntu-latest
+    if: startsWith(github.head_ref, 'hotfix/') && (github.base_ref == 'main' || github.base_ref == 'develop')
+    steps:
+      - name: Check target branch for hotfix
+        run: |
+          if [ "${{ github.base_ref }}" != "main" ] && [ "${{ github.base_ref }}" != "develop" ]; then
+            echo "Hotfix branches must target the main or develop branch."
+            exit 1
+          fi
+
+  release-branch-validation:
+    runs-on: ubuntu-latest
+    if: startsWith(github.head_ref, 'release/') && (github.base_ref == 'main' || github.base_ref == 'develop')
+    steps:
+      - name: Check target branch for release
+        run: |
+          if [ "${{ github.base_ref }}" != "main" ] && [ "${{ github.base_ref }}" != "develop" ]; then
+            echo "Release branches must target the main or develop branch."
+            exit 1
+          fi
