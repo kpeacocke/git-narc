@@ -11,7 +11,13 @@
   ],
   "conditions": {
     "ref_name": {
-      "include": ["refs/heads/main", "refs/heads/develop"],
+      "include": [
+        "refs/heads/main",
+        "refs/heads/develop",
+        "refs/heads/feature/*",
+        "refs/heads/release/*",
+        "refs/heads/hotfix/*"
+      ],
       "exclude": []
     }
   },
@@ -24,6 +30,24 @@
         "require_last_push_approval": false,
         "required_approving_review_count": 1,
         "required_review_thread_resolution": false
+      }
+    },
+    {
+      "type": "required_pull_request_reviews",
+      "parameters": {
+        "dismiss_stale_reviews_on_push": true,
+        "require_code_owner_review": true,
+        "required_approving_review_count": 1
+      }
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict": true,
+        "checks": [
+          "continuous-integration/jenkins", // Replace with your CI check names
+          "code-quality/sonarqube" // Replace with your code quality check names
+        ]
       }
     }
   ]
