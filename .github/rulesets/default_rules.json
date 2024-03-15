@@ -1,5 +1,5 @@
 {
-  "name": "Default Enforcement",
+  "name": "Default Ruleset",
   "target": "branch",
   "enforcement": "active",
   "bypass_actors": [
@@ -14,7 +14,11 @@
       "include": [
           "refs/heads/main", 
           "refs/heads/develop",
-          "refs/heads/develop*"
+          "refs/heads/feature",
+          "refs/heads/hotfix",
+          "refs/heads/develop*",
+          "refs/heads/feature*",
+          "refs/heads/hotfix*"
         ],
       "exclude": []
     }
